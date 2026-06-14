@@ -29,6 +29,29 @@ const createGroup = async (req, res) => {
   }
 };
 
+const addMember = async (req, res) => {
+  try {
+    const { group_id, user_id } = req.body;
+
+    await pool.query(
+      `INSERT INTO group_members(group_id, user_id)
+       VALUES($1,$2)`,
+      [group_id, user_id]
+    );
+
+    res.json({
+      success: true,
+      message: "Member added successfully"
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
-  createGroup
+  createGroup,
+  addMember
 };
