@@ -60,10 +60,7 @@ const addExpense = async (req, res) => {
       amount,
       split_type
     } = req.body;
-    console.log(req.body);
-    console.log("split_type =", split_type);
-    const dbInfo = await pool.query("SELECT current_database(), current_schema()");
-    console.log(dbInfo.rows[0]);
+
     const expense = await pool.query(
       `INSERT INTO expenses(
         group_id,
@@ -73,7 +70,7 @@ const addExpense = async (req, res) => {
         split_type
       )
       VALUES($1,$2,$3,$4,$5)
-      RETURNING id, group_id, paid_by, amount, split_type`,
+      RETURNING *`,
       [
         group_id,
         paid_by,
@@ -82,7 +79,6 @@ const addExpense = async (req, res) => {
         split_type
       ]
     );
-    console.log("Inserted:", expense.rows[0]);
 
     res.status(201).json({
       success: true,
@@ -96,8 +92,34 @@ const addExpense = async (req, res) => {
   }
 };
 
+const getGroupExpenses = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    const expenses = await pool.query(
+      `SELECT *
+       FROM expenses
+       WHERE group_id = $1
+       ORDER BY created_at DESC`,
+      [groupId]
+    );
+
+    res.json({
+      success: true,
+      expenses: expenses.rows
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createGroup,
   addMember,
-  addExpense
+  addExpense,
+  getGroupExpenses
 };
+
