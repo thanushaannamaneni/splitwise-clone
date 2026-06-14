@@ -1,7 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db/db");
+
 const authRoutes = require("./routes/authRoutes");
+const groupRoutes = require("./routes/groupRoutes");
 
 const app = express();
 
@@ -9,10 +11,12 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/groups", groupRoutes);
 
 app.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
+
     res.json({
       success: true,
       time: result.rows[0]
