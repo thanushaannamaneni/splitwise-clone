@@ -7,10 +7,12 @@ router.get("/test", (req, res) => {
 
 const {
   createGroup,
-  addMember
+  addMember,
+  addExpense
 } = require("../controllers/groupController");
 
 router.post("/create", createGroup);
 router.post("/add-member", addMember);
+router.post("/add-expense", addExpense);
 
 module.exports = router;
