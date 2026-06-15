@@ -116,10 +116,65 @@ const getGroupExpenses = async (req, res) => {
   }
 };
 
+const getGroupBalance = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    const membersResult = await pool.query(
+      `SELECT user_id
+       FROM group_members
+       WHERE group_id = $1`,
+      [groupId]
+    );
+
+    const expensesResult = await pool.query(
+      `SELECT *
+       FROM expenses
+       WHERE group_id = $1`,
+      [groupId]
+    );
+
+    const members = membersResult.rows;
+    const expenses = expensesResult.rows;
+
+    if (members.length === 0) {
+      return res.status(404).json({
+        message: "No members found in group"
+      });
+    }
+
+    const balances = {};
+
+    members.forEach(member => {
+      balances[member.user_id] = 0;
+    });
+
+    expenses.forEach(expense => {
+      const share = Number(expense.amount) / members.length;
+
+      members.forEach(member => {
+        balances[member.user_id] -= share;
+      });
+
+      balances[expense.paid_by] += Number(expense.amount);
+    });
+
+    res.json({
+      success: true,
+      balances
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createGroup,
   addMember,
   addExpense,
-  getGroupExpenses
+  getGroupExpenses,
+  getGroupBalance
 };
-

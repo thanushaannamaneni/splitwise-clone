@@ -5,7 +5,8 @@ const {
   createGroup,
   addMember,
   addExpense,
-  getGroupExpenses
+  getGroupExpenses,
+  getGroupBalance
 } = require("../controllers/groupController");
 
 router.get("/test", (req, res) => {
@@ -15,6 +16,8 @@ router.get("/test", (req, res) => {
 router.post("/create", createGroup);
 router.post("/add-member", addMember);
 router.post("/add-expense", addExpense);
+
 router.get("/:groupId/expenses", getGroupExpenses);
+router.get("/:groupId/balance", getGroupBalance);
 
 module.exports = router;
